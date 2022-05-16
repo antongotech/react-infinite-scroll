@@ -1,32 +1,33 @@
 import React, {useEffect, useState} from 'react'
-import axios from "axios";
+import axios from 'axios'
 
-interface ISearch {
-    query: string
-    page: number
+interface IResult {
+    title: string
 }
 
 const UseSearch = (query: string, page: number) => {
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<boolean>(false)
-    const [books, setBooks] = useState<any[]>([])
+    const [books, setBooks] = useState<string[]>([])
     const [hasMore, setHasMore] = useState<boolean>(false)
 
     useEffect(() => {
         setBooks([])
-    },[query])
+    }, [query])
 
     useEffect(() => {
         setLoading(true)
         setError(false)
+
         let cancel: Function
+
         axios({
             method: 'GET',
             url: 'http://openlibrary.org/search.json',
             params: {q: query, page: page},
             cancelToken: new axios.CancelToken((c) => cancel = c)
         }).then((res) => {
-            setBooks(prevState => [...prevState, ...res.data.docs.map((b:any) => b.title)])
+            setBooks(prevState => [...prevState, ...res.data.docs.map((b: IResult) => b.title)])
             setHasMore(res.data.docs.length > 0)
             setLoading(false)
         }).catch(e => {

@@ -6,10 +6,10 @@ function App() {
     const [text, setText] = useState<string>('')
     const [page, setPage] = useState<number>(1)
 
-    const observer: any = useRef()
+    const observer = useRef<IntersectionObserver>()
     const {books, hasMore, loading, error} = useSearch(text, page)
 
-    const lastInstanceRef = useCallback((node: any) => {
+    const lastInstanceRef = useCallback((node: HTMLLIElement | null) => {
         if (loading) return
         if (observer.current) observer.current.disconnect()
         observer.current = new IntersectionObserver(entries => {
@@ -22,6 +22,7 @@ function App() {
         setText(e.target.value)
         setPage(1)
     }
+
     return (
         <Container maxWidth='lg'>
             <Box display='flex' justifyContent='center' alignItems='center' py={3}>
@@ -33,7 +34,8 @@ function App() {
                 error && <Typography variant='body2' color='text.secondary'>Error. Please reload the page</Typography>
             }
             {
-                !error && books.length > 0 && <List>
+                !error && books.length > 0 &&
+                <List>
                     {books.map((b, i) => {
                         if (books.length === i + 1) {
                             return <ListItem ref={lastInstanceRef} key={b + i}><ListItemText
@@ -51,7 +53,6 @@ function App() {
                 !loading && !books.length &&
                 <Typography variant='body2' color='text.secondary'>Nothing has been found</Typography>
             }
-
         </Container>
     )
 }
