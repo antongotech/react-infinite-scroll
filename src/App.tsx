@@ -1,5 +1,5 @@
 import {Box, Container, List, ListItem, ListItemText, TextField, Typography} from '@mui/material'
-import React, {ChangeEvent, useState, useRef, useCallback} from 'react'
+import React, {ChangeEvent, useState, useRef, useCallback, useEffect} from 'react'
 import useSearch from './useSearch'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     const [page, setPage] = useState<number>(1)
 
     const observer = useRef<IntersectionObserver>()
-    const {books, hasMore, loading, error} = useSearch(text, page)
+    const {itemsInFocus, hasMore, loading, error} = useSearch(text, page)
 
     const lastInstanceRef = useCallback((node: HTMLLIElement | null) => {
         if (loading) return
@@ -34,10 +34,10 @@ function App() {
                 error && <Typography variant='body2' color='text.secondary'>Error. Please reload the page</Typography>
             }
             {
-                !error && books.length > 0 &&
+                !error && itemsInFocus.length > 0 &&
                 <List>
-                    {books.map((b, i) => {
-                        if (books.length === i + 1) {
+                    {itemsInFocus.map((b, i) => {
+                        if (itemsInFocus.length === i + 1) {
                             return <ListItem ref={lastInstanceRef} key={b + i}><ListItemText
                                 primary={`${i + 1}. ${b}`}/></ListItem>
                         } else {
@@ -50,7 +50,7 @@ function App() {
                 loading && <Typography variant='body2' color='text.secondary'>Loading...</Typography>
             }
             {
-                !loading && !books.length &&
+                !loading && !itemsInFocus.length &&
                 <Typography variant='body2' color='text.secondary'>Nothing has been found</Typography>
             }
         </Container>
