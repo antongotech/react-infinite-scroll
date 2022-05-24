@@ -6,22 +6,63 @@ function App() {
     const [text, setText] = useState<string>('')
     const [page, setPage] = useState<number>(1)
 
+    const [isLastSeen, setIsLastSeenIndex] = useState<boolean>(false)
+    const [isFirstSeen, setIsFirstSeenIndex] = useState<boolean>(false)
+
     const observer = useRef<IntersectionObserver>()
-    const {itemsInFocus, hasMore, loading, error} = useSearch(text, page)
+    const lastSeenObserver = useRef<IntersectionObserver>()
+    const firstSeenObserver = useRef<IntersectionObserver>()
+
+    const {itemsInFocus, hasMore, loading, error, books, currentPosition} =
+        useSearch(text, page, setIsFirstSeenIndex, isFirstSeen, setIsLastSeenIndex, isLastSeen,)
 
     const lastInstanceRef = useCallback((node: HTMLLIElement | null) => {
         if (loading) return
         if (observer.current) observer.current.disconnect()
         observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) setPage(prevState => prevState + 1)
+            if (entries[0].isIntersecting && hasMore && itemsInFocus[itemsInFocus.length - 1] === books[books.length - 1])
+                setPage(prevState => prevState + 1)
         })
         if (node) observer.current.observe(node)
     }, [loading, hasMore])
+
+    const firstVisibleInstanceRef = (node: HTMLLIElement | null) => {
+        if (loading) return
+        if (firstSeenObserver.current) firstSeenObserver.current.disconnect()
+        firstSeenObserver.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting)
+                setIsFirstSeenIndex(true)
+        })
+        if (node) firstSeenObserver.current.observe(node)
+    }
+
+    const lastVisibleInstanceRef = (node: HTMLLIElement | null) => {
+        if (loading) return
+        if (lastSeenObserver.current) lastSeenObserver.current.disconnect()
+        lastSeenObserver.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                setIsLastSeenIndex(true)
+            }
+        })
+        if (node) lastSeenObserver.current.observe(node)
+    }
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setText(e.target.value)
         setPage(1)
     }
+
+    useEffect(() => {
+        console.log(books)
+    }, [books])
+
+    useEffect(() => {
+        console.log(isLastSeen)
+    }, [isLastSeen])
+
+    useEffect(() => {
+        console.log(isFirstSeen)
+    }, [isFirstSeen])
 
     return (
         <Container maxWidth='lg'>
@@ -38,10 +79,16 @@ function App() {
                 <List>
                     {itemsInFocus.map((b, i) => {
                         if (itemsInFocus.length === i + 1) {
-                            return <ListItem ref={lastInstanceRef} key={b + i}><ListItemText
+                            return <ListItem sx={{margin: '5px 0'}} ref={lastVisibleInstanceRef}
+                                             key={b + i}><ListItemText
+                                primary={`${i + 1}. ${b}`}/></ListItem>
+                        } else if (i === 0) {
+                            return <ListItem sx={{margin: '5px 0'}} ref={firstVisibleInstanceRef}
+                                             key={b + i}><ListItemText
                                 primary={`${i + 1}. ${b}`}/></ListItem>
                         } else {
-                            return <ListItem key={b + i}><ListItemText primary={`${i + 1}. ${b}`}/></ListItem>
+                            return <ListItem sx={{margin: '5px 0'}} key={b + i}><ListItemText
+                                primary={`${i + 1}. ${b}`}/></ListItem>
                         }
                     })}
                 </List>
