@@ -9,22 +9,22 @@ function App() {
     const [isLastSeen, setIsLastSeenIndex] = useState<boolean>(false)
     const [isFirstSeen, setIsFirstSeenIndex] = useState<boolean>(false)
 
-    const observer = useRef<IntersectionObserver>()
+    // const observer = useRef<IntersectionObserver>()
     const lastSeenObserver = useRef<IntersectionObserver>()
     const firstSeenObserver = useRef<IntersectionObserver>()
 
-    const {itemsInFocus, hasMore, loading, error, books, currentPosition} =
+    const {itemsInFocus, hasMore, loading, error, allItems, currentPosition} =
         useSearch(text, page, setIsFirstSeenIndex, isFirstSeen, setIsLastSeenIndex, isLastSeen,)
 
-    const lastInstanceRef = useCallback((node: HTMLLIElement | null) => {
-        if (loading) return
-        if (observer.current) observer.current.disconnect()
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore && itemsInFocus[itemsInFocus.length - 1] === books[books.length - 1])
-                setPage(prevState => prevState + 1)
-        })
-        if (node) observer.current.observe(node)
-    }, [loading, hasMore])
+    // const lastInstanceRef = useCallback((node: HTMLLIElement | null) => {
+    //     if (loading) return
+    //     if (observer.current) observer.current.disconnect()
+    //     observer.current = new IntersectionObserver(entries => {
+    //         if (entries[0].isIntersecting && hasMore && itemsInFocus[itemsInFocus.length - 1] === allItems[allItems.length - 1])
+    //             setPage(prevState => prevState + 1)
+    //     })
+    //     if (node) observer.current.observe(node)
+    // }, [loading, hasMore])
 
     const firstVisibleInstanceRef = (node: HTMLLIElement | null) => {
         if (loading) return
@@ -51,18 +51,6 @@ function App() {
         setText(e.target.value)
         setPage(1)
     }
-
-    useEffect(() => {
-        console.log(books)
-    }, [books])
-
-    useEffect(() => {
-        console.log(isLastSeen)
-    }, [isLastSeen])
-
-    useEffect(() => {
-        console.log(isFirstSeen)
-    }, [isFirstSeen])
 
     return (
         <Container maxWidth='lg'>

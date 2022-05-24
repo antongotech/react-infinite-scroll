@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 
-// useScrollPosition returns numeric value that represents current position of viewport on Y-axis
+// useScrollPosition is a helper hook returns numeric value that represents current position of viewport on Y-axis,
+// direction where page is scrolled(top/bottom), difference in pixels from last scroll value resetting
 const useScrollPosition = () => {
 
     const [direction, setDirection] = useState<string>('frozen')
@@ -12,7 +13,7 @@ const useScrollPosition = () => {
     useEffect(() => {
         const onScroll = () => setCurrentPosition(prevState => {
             setPrevPosition(prevState)
-            setDirection(prevState > window.pageYOffset ? 'up' : 'down')
+            setDirection(prevState > window.pageYOffset ? 'top' : 'bottom')
             return window.pageYOffset
         })
         window.removeEventListener('scroll', onScroll)
@@ -22,9 +23,9 @@ const useScrollPosition = () => {
 
     useEffect(() => {
         setDifference(() => {
-            if (direction === 'up') {
+            if (direction === 'top') {
                 return currentPosition - prevPosition
-            } else if (direction === 'down') {
+            } else if (direction === 'bottom') {
                 return prevPosition - currentPosition
             } else {
                 return 0
