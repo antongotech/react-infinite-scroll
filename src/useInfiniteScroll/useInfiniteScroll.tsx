@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import useScrollPosition from './helpers/useScrollPosition'
 import useWindowDimensions from './helpers/useWindowDimensions'
+import useScreenScroll from './helpers/useScreenScroll'
 
 interface IResult {
     title: string
@@ -9,20 +10,22 @@ interface IResult {
 const useInfiniteScroll =
     (items: any[], setIsFirstItemSeen: Function, isFirstItemSeen: boolean, setIsLastItemSeen: Function, isLastItemSeen: boolean) => {
 
+        const {direction, currentPosition, resetPosition} = useScrollPosition()
+        const {width, height} = useWindowDimensions()
+
+        const [isFloorElement, setIsFloorElement] = useState(false)
+        const [isCeilingElement, setIsCeilingElement] = useState(false)
+
         const [itemsInFocus, setItemsInFocus] = useState<string[]>(items.slice(0, 20))
 
         const [firstSeenIndex, setFirstSeenIndex] = useState<number>(0)
         const [lastSeenIndex, setLastSeenIndex] = useState<number>(20)
 
-        const {width, height} = useWindowDimensions()
-
         const defaultItemHeight = useMemo(() => {
-            return height / itemsInFocus.length - 15
+            return height / itemsInFocus.length
         }, [height, itemsInFocus.length])
 
-        // Adds book to the top/bottom of the list, according to the given direction
-        // Scrolls visible part of page to the exact amount of pixels above/beyond if
-        // last element of list is seen
+
         const onItemsIndexChange = (direction: string) => {
             if (direction === 'top') {
                 setFirstSeenIndex(prevState => prevState - 1)
@@ -31,12 +34,22 @@ const useInfiniteScroll =
             }
         }
 
-        const {currentPosition} =
-            useScrollPosition(defaultItemHeight,isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange)
+        const {} = useScreenScroll(direction, currentPosition, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange, defaultItemHeight, resetPosition)
+
+        //defaultItemHeight, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange
 
         useEffect(() => {
-            console.log('Already scrolled: ', currentPosition)
-        }, [currentPosition])
+            if (itemsInFocus[0] === items[0]) {
+                setIsFloorElement(true)
+                return
+            }
+            if (itemsInFocus[itemsInFocus.length - 1] === items[items.length - 1]) {
+                setIsCeilingElement(true)
+                return
+            }
+            setIsFloorElement(false)
+            setIsCeilingElement(false)
+        }, [itemsInFocus])
 
         // Adds book to the bottom of the list when the last is seen
         useEffect(() => {
@@ -46,7 +59,6 @@ const useInfiniteScroll =
             updatedItems.push(items[lastSeenIndex])
             setItemsInFocus(updatedItems)
         }, [lastSeenIndex])
-
 
         // Adds book to the top of the list when first is seen
         useEffect(() => {
