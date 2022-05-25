@@ -11,7 +11,7 @@ function App() {
 
     return (
         <>
-            <p>Infinite scroll</p>
+            <h3 style={{textAlign: 'center'}}>Infinite scroll</h3>
             <InfiniteScroll items={items}/>
         </>
     )

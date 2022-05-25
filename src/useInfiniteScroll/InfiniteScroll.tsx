@@ -8,19 +8,19 @@ import useInfiniteScroll from './useInfiniteScroll'
 
 const InfiniteScroll: React.FC<{ items: any[] }> = ({items}) => {
 
-    const [isLastSeen, setIsLastSeenIndex] = useState<boolean>(false)
-    const [isFirstSeen, setIsFirstSeenIndex] = useState<boolean>(false)
+    const [isLastItemSeen, setIsLastItemSeen] = useState<boolean>(false)
+    const [isFirstItemSeen, setIsFirstItemSeen] = useState<boolean>(false)
 
     const lastSeenObserver = useRef<IntersectionObserver>()
     const firstSeenObserver = useRef<IntersectionObserver>()
 
-    const {itemsInFocus} = useInfiniteScroll(items, setIsFirstSeenIndex, isFirstSeen, setIsLastSeenIndex, isLastSeen)
+    const {itemsInFocus} = useInfiniteScroll(items, setIsFirstItemSeen, isFirstItemSeen, setIsLastItemSeen, isLastItemSeen)
 
     const firstVisibleInstanceRef = (node: HTMLLIElement | null) => {
         if (firstSeenObserver.current) firstSeenObserver.current.disconnect()
         firstSeenObserver.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting)
-                setIsFirstSeenIndex(true)
+                setIsFirstItemSeen(true)
         })
         if (node) firstSeenObserver.current.observe(node)
     }
@@ -29,7 +29,7 @@ const InfiniteScroll: React.FC<{ items: any[] }> = ({items}) => {
         if (lastSeenObserver.current) lastSeenObserver.current.disconnect()
         lastSeenObserver.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting) {
-                setIsLastSeenIndex(true)
+                setIsLastItemSeen(true)
             }
         })
         if (node) lastSeenObserver.current.observe(node)

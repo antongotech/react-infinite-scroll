@@ -13,16 +13,16 @@ const ScrollContent: React.FC<IScrollContent> =
             <List>
                 {itemsInFocus.map((b, i) => {
                     if (itemsInFocus.length === i + 1) {
-                        return <ListItem sx={{margin: '5px 0'}} ref={lastVisibleInstanceRef}
+                        return <ListItem sx={{height: 75}} ref={lastVisibleInstanceRef}
                                          key={b + i}><ListItemText
-                            primary={`${i + 1}. ${b}`}/></ListItem>
+                            primary={`${b}🚀`}/></ListItem>
                     } else if (i === 0) {
-                        return <ListItem sx={{margin: '5px 0'}} ref={firstVisibleInstanceRef}
+                        return <ListItem sx={{height: 75}} ref={firstVisibleInstanceRef}
                                          key={b + i}><ListItemText
-                            primary={`${i + 1}. ${b}`}/></ListItem>
+                            primary={`${b} 🚀`}/></ListItem>
                     } else {
-                        return <ListItem sx={{margin: '5px 0'}} key={b + i}><ListItemText
-                            primary={`${i + 1}. ${b}`}/></ListItem>
+                        return <ListItem sx={{height: 75}} key={b + i}><ListItemText
+                            primary={`${b}`}/></ListItem>
                     }
                 })}
             </List>
