@@ -3,9 +3,16 @@ import InfiniteScroll from './useInfiniteScroll/InfiniteScroll'
 
 // Upper level of InfiniteScroll component usage would be here
 function App() {
+    let items: any[] = []
+
+    for(let i=1; i< 101; i++) {
+        items.push(`Item ${i}`)
+    }
+
     return (
         <>
-            <InfiniteScroll/>
+            <p>Infinite scroll</p>
+            <InfiniteScroll items={items}/>
         </>
     )
 }

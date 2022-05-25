@@ -1,22 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import useScrollPosition from './helpers/useScrollPosition'
 import useWindowDimensions from './helpers/useWindowDimensions'
-import axios from 'axios'
 
 interface IResult {
     title: string
 }
 
 const useInfiniteScroll =
-    (query: string, page: number, setIsFirstSeenIndex: Function, firstSeenIndex: boolean, setIsLastSeenIndex: Function, lastSeenIndex: boolean) => {
+    (items: any[], setIsFirstSeenIndex: Function, firstSeenIndex: boolean, setIsLastSeenIndex: Function, lastSeenIndex: boolean) => {
 
-        const [loading, setLoading] = useState<boolean>(true)
-        const [error, setError] = useState<boolean>(false)
-
-        const [hasMore, setHasMore] = useState<boolean>(false)
-
-        const [allItems, setAllItems] = useState<string[]>([])
-        const [itemsInFocus, setItemsInFocus] = useState<string[]>([])
+        const [itemsInFocus, setItemsInFocus] = useState<string[]>(items.slice(0, 20))
 
         const [shouldSwap, setShouldSwap] = useState<number>(0)
 
@@ -60,7 +53,7 @@ const useInfiniteScroll =
 
             console.log('Added to the bottom', lastSeen)
             const newArr = itemsInFocus.slice(1)
-            newArr.push(allItems[lastSeen])
+            newArr.push(items[lastSeen])
             setItemsInFocus(newArr)
         }, [lastSeen])
 
@@ -70,9 +63,9 @@ const useInfiniteScroll =
             if (!itemsInFocus.length) return
 
             console.log('Added to top', firstSeen)
-            const previousIndex = allItems.indexOf(itemsInFocus[0]) - 1 > 0 ? allItems.indexOf(itemsInFocus[0]) - 1 : 0
+            const previousIndex = items.indexOf(itemsInFocus[0]) - 1 > 0 ? items.indexOf(itemsInFocus[0]) - 1 : 0
             let updatedItems = itemsInFocus.slice(0, 19)
-            updatedItems = [allItems[previousIndex], ...updatedItems]
+            updatedItems = [items[previousIndex], ...updatedItems]
             setItemsInFocus(updatedItems)
         }, [firstSeen])
 
@@ -90,44 +83,7 @@ const useInfiniteScroll =
             })
         }, [difference])
 
-
-        // Clears items array if query changes
-        useEffect(() => {
-            setAllItems([])
-        }, [query])
-
-
-        // Async useEffect for fetching data from api
-        useEffect(() => {
-            setLoading(true)
-            setError(false)
-
-            let cancel: Function
-
-            axios({
-                method: 'GET',
-                url: 'http://openlibrary.org/search.json',
-                params: {q: query, page: page},
-                cancelToken: new axios.CancelToken((c) => cancel = c)
-            }).then((res) => {
-                setAllItems(prevState => [...prevState, ...res.data.docs.map((b: IResult) => b.title)])
-                if (!itemsInFocus.length && res.data.docs.length) {
-                    console.log('Initial results list fill')
-                    const newArr = res.data.docs.slice(0, 20)
-                    setItemsInFocus([...newArr.map((b: IResult, i: number) => i < 20 && b.title)])
-                }
-                setHasMore(res.data.docs.length > 0)
-                setLoading(false)
-            }).catch(e => {
-                if (axios.isCancel(e)) return
-                setError(true)
-            })
-
-            return () => cancel()
-        }, [query, page])
-
-
-        return {loading, error, itemsInFocus, hasMore, allItems, currentPosition}
+        return {itemsInFocus}
     }
 
 export default useInfiniteScroll
