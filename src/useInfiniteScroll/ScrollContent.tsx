@@ -9,7 +9,6 @@ interface IScrollContent {
 
 const ScrollContent: React.FC<IScrollContent> =
     ({itemsInFocus, lastVisibleInstanceRef, firstVisibleInstanceRef}) => {
-        console.log(itemsInFocus)
         return (
             <List>
                 {itemsInFocus.map((b, i) => {

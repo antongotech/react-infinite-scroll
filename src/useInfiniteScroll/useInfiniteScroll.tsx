@@ -35,7 +35,6 @@ const useInfiniteScroll =
         // Adds book to the bottom of the list when the last is seen
         useEffect(() => {
             if (!itemsInFocus.length) return
-
             const updatedItems = (itemsInFocus.slice(1))
             updatedItems.push(items[lastSeenIndex])
             setItemsInFocus(updatedItems)
@@ -44,7 +43,6 @@ const useInfiniteScroll =
         // Adds book to the top of the list when first is seen
         useEffect(() => {
             if (!itemsInFocus.length) return
-
             const previousIndex = items.indexOf(itemsInFocus[0]) - 1 > 0 ? items.indexOf(itemsInFocus[0]) - 1 : 0
             let updatedItems = itemsInFocus.slice(0, 19)
             updatedItems = [items[previousIndex], ...updatedItems]

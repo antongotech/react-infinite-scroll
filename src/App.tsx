@@ -5,7 +5,7 @@ import InfiniteScroll from './useInfiniteScroll/InfiniteScroll'
 function App() {
     let items: any[] = []
 
-    for(let i=1; i< 25; i++) {
+    for(let i=1; i< 23; i++) {
         items.push(`Item ${i}`)
     }
 
