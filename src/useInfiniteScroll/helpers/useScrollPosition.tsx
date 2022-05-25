@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 
+// useScrollPosition returns current position of screen, direction and fn to reset position
 const useScrollPosition = () => {
-
     const [direction, setDirection] = useState<string>('frozen')
     const [currentPosition, setCurrentPosition] = useState<number>(0)
 

@@ -2,21 +2,17 @@ import React, {useEffect, useMemo, useState} from 'react'
 import useScrollPosition from './helpers/useScrollPosition'
 import useWindowDimensions from './helpers/useWindowDimensions'
 import useScreenScroll from './helpers/useScreenScroll'
-
-interface IResult {
-    title: string
-}
+import useGetEdgeElements from "./helpers/useGetEdgeElements";
 
 const useInfiniteScroll =
     (items: any[], setIsFirstItemSeen: Function, isFirstItemSeen: boolean, setIsLastItemSeen: Function, isLastItemSeen: boolean) => {
 
         const {direction, currentPosition, resetPosition} = useScrollPosition()
-        const {width, height} = useWindowDimensions()
-
-        const [isFloorElement, setIsFloorElement] = useState(false)
-        const [isCeilingElement, setIsCeilingElement] = useState(false)
+        const {height} = useWindowDimensions()
 
         const [itemsInFocus, setItemsInFocus] = useState<string[]>(items.slice(0, 20))
+
+        const {isFloorElement, isCeilingElement} = useGetEdgeElements(items, itemsInFocus)
 
         const [firstSeenIndex, setFirstSeenIndex] = useState<number>(0)
         const [lastSeenIndex, setLastSeenIndex] = useState<number>(20)
@@ -25,7 +21,7 @@ const useInfiniteScroll =
             return height / itemsInFocus.length
         }, [height, itemsInFocus.length])
 
-
+        // Controls indexes of visible part of elements array
         const onItemsIndexChange = (direction: string) => {
             if (direction === 'top') {
                 setFirstSeenIndex(prevState => prevState - 1)
@@ -34,22 +30,7 @@ const useInfiniteScroll =
             }
         }
 
-        const {} = useScreenScroll(direction, currentPosition, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange, defaultItemHeight, resetPosition)
-
-        //defaultItemHeight, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange
-
-        useEffect(() => {
-            if (itemsInFocus[0] === items[0]) {
-                setIsFloorElement(true)
-                return
-            }
-            if (itemsInFocus[itemsInFocus.length - 1] === items[items.length - 1]) {
-                setIsCeilingElement(true)
-                return
-            }
-            setIsFloorElement(false)
-            setIsCeilingElement(false)
-        }, [itemsInFocus])
+        useScreenScroll(direction, currentPosition, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange, defaultItemHeight, resetPosition)
 
         // Adds book to the bottom of the list when the last is seen
         useEffect(() => {
