@@ -38,14 +38,13 @@ const useInfiniteScroll =
         useEffect(() => {
             if (!itemsInFocus.length || !currentPosition) return
             if (direction === 'top') {
-                const previousIndex = firstSeenIndex - 1
                 let updatedItems = itemsInFocus.slice(0, 19)
-                updatedItems = [items[previousIndex], ...updatedItems]
+                updatedItems = [items[firstSeenIndex], ...updatedItems]
                 setItemsInFocus(updatedItems)
             }
             if (direction === 'bottom') {
                 const updatedItems = (itemsInFocus.slice(1))
-                updatedItems.push(items[lastSeenIndex])
+                updatedItems.push(items[lastSeenIndex - 1])
                 setItemsInFocus(updatedItems)
             }
         }, [lastSeenIndex, firstSeenIndex])

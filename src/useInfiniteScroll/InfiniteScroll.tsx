@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {Container} from '@mui/material'
 import ScrollContent from './ScrollContent'
 import useInfiniteScroll from './useInfiniteScroll'
@@ -7,6 +7,12 @@ const InfiniteScroll: React.FC<{ items: any[] }> = ({items}) => {
 
     const [isLastItemSeen, setIsLastItemSeen] = useState<boolean>(false)
     const [isFirstItemSeen, setIsFirstItemSeen] = useState<boolean>(false)
+
+
+    useEffect(() => {
+        isFirstItemSeen && setIsLastItemSeen(false)
+        isLastItemSeen && setIsFirstItemSeen(false)
+    }, [isFirstItemSeen, isLastItemSeen])
 
     const lastSeenObserver = useRef<IntersectionObserver>()
     const firstSeenObserver = useRef<IntersectionObserver>()
