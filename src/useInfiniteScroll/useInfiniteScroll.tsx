@@ -25,29 +25,30 @@ const useInfiniteScroll =
         const onItemsIndexChange = (direction: string) => {
             if (direction === 'top') {
                 setFirstSeenIndex(prevState => prevState - 1)
+                setLastSeenIndex(prevState => prevState - 1)
             } else if (direction === 'bottom') {
                 setLastSeenIndex(prevState => prevState + 1)
+                setFirstSeenIndex(prevState => prevState + 1)
             }
         }
 
         useScreenScroll(direction, currentPosition, isFloorElement, isCeilingElement, isFirstItemSeen, setIsFirstItemSeen, isLastItemSeen, setIsLastItemSeen, onItemsIndexChange, defaultItemHeight, resetPosition)
 
-        // Adds book to the bottom of the list when the last is seen
+        // Adds book to the top/bottom of the list when the last is seen
         useEffect(() => {
-            if (!itemsInFocus.length) return
-            const updatedItems = (itemsInFocus.slice(1))
-            updatedItems.push(items[lastSeenIndex])
-            setItemsInFocus(updatedItems)
-        }, [lastSeenIndex])
-
-        // Adds book to the top of the list when first is seen
-        useEffect(() => {
-            if (!itemsInFocus.length) return
-            const previousIndex = items.indexOf(itemsInFocus[0]) - 1 > 0 ? items.indexOf(itemsInFocus[0]) - 1 : 0
-            let updatedItems = itemsInFocus.slice(0, 19)
-            updatedItems = [items[previousIndex], ...updatedItems]
-            setItemsInFocus(updatedItems)
-        }, [firstSeenIndex])
+            if (!itemsInFocus.length || !currentPosition) return
+            if (direction === 'top') {
+                const previousIndex = firstSeenIndex - 1
+                let updatedItems = itemsInFocus.slice(0, 19)
+                updatedItems = [items[previousIndex], ...updatedItems]
+                setItemsInFocus(updatedItems)
+            }
+            if (direction === 'bottom') {
+                const updatedItems = (itemsInFocus.slice(1))
+                updatedItems.push(items[lastSeenIndex])
+                setItemsInFocus(updatedItems)
+            }
+        }, [lastSeenIndex, firstSeenIndex])
 
         return {itemsInFocus}
     }

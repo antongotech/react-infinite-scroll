@@ -16,7 +16,7 @@ const useScrollPosition = () => {
     }, [])
 
     const resetPosition = () => {
-        setCurrentPosition(0)
+        setCurrentPosition(1)
     }
 
     return {direction, currentPosition, resetPosition}
