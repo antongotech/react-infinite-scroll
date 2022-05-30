@@ -12,8 +12,8 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
     const [currentPosition, setCurrentPosition] = useState<number>(0)
     const [index, setIndex] = useState<number>(0)
 
-    const itemHeight = 50
-    const lastIndex = 10
+    const itemHeight = useMemo(() => 50, [])
+    const lastIndex = useMemo(() => 10, [])
 
     const items = useMemo(() => {
         let temp = []
@@ -29,7 +29,8 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
                         position: 'absolute',
                         left: 0,
                         top: i === 1 ? 0 : i * itemHeight - itemHeight
-                    }}/>
+                    }}
+                />
             )
         }
         return temp.reverse()
@@ -57,21 +58,19 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
 
     // Add element at the end / beginning of list according to index
     useEffect(() => {
-        setInFocus(prev => {
-            if (items.length > lastIndex) {
-                return items.slice(index, lastIndex + index)
-            } else return prev
-        })
+        setInFocus(items.slice(index, lastIndex + index))
     }, [index])
 
     return (
-        <div ref={inputRef} style={{
-            width: width,
-            height: height,
-            border: '1px solid gray',
-            overflowY: 'scroll',
-            position: 'relative'
-        }}>
+        <div ref={inputRef}
+             style={{
+                 width: width,
+                 height: height,
+                 border: '1px solid gray',
+                 overflowY: 'scroll',
+                 position: 'relative'
+             }}
+        >
             {inFocus}
             <div style={{height: items.length * itemHeight}}/>
         </div>
