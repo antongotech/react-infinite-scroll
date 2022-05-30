@@ -1,18 +1,16 @@
 import React from 'react'
-import InfiniteScroll from './useInfiniteScroll/InfiniteScroll'
+import InfiniteScroll from './InfiniteScroll/InfiniteScroll'
 
-// Upper level of InfiniteScroll component usage would be here
+const Row: React.FC<{ index: number, style: any, ref?: HTMLInputElement }> = ({index, style}) => (
+    <div style={style}>Row {index}</div>
+)
+
 function App() {
-    let items: any[] = []
-
-    for(let i=1; i< 26; i++) {
-        items.push(`Item ${i}`)
-    }
 
     return (
         <>
             <h3 style={{textAlign: 'center'}}>Infinite scroll</h3>
-            <InfiniteScroll items={items}/>
+            <InfiniteScroll height={150} width={300} amount={50} Item={Row}/>
         </>
     )
 }
