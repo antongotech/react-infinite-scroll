@@ -2,18 +2,19 @@ import React, {useEffect, useMemo, useState} from 'react'
 
 interface IInfiniteScroll {
     height: number
-    width: number
+    width: number | string
     amount: number
     Item: any
+    rendered: number
+    inFocus: number
 }
 
-const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}) => {
+const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item, rendered, inFocus}) => {
     const inputRef = React.useRef<HTMLInputElement>(null)
     const [currentPosition, setCurrentPosition] = useState<number>(0)
     const [index, setIndex] = useState<number>(0)
 
-    const itemHeight = useMemo(() => 50, [])
-    const lastIndex = useMemo(() => 10, [])
+    const itemHeight = useMemo(() => height / inFocus, [height])
 
     const items = useMemo(() => {
         let temp = []
@@ -36,9 +37,9 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
         return temp.reverse()
     }, [amount, Item, itemHeight])
 
-    const [inFocus, setInFocus] = useState(() => {
-        if (items.length > lastIndex) {
-            return [...items.slice(0, lastIndex)]
+    const [displayed, setDisplayed] = useState(() => {
+        if (items.length > rendered) {
+            return [...items.slice(0, rendered)]
         } else return items
     })
 
@@ -58,7 +59,7 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
 
     // Add element at the end / beginning of list according to index
     useEffect(() => {
-        setInFocus(items.slice(index, lastIndex + index))
+        setDisplayed(items.slice(index, rendered + index))
     }, [index])
 
     return (
@@ -71,7 +72,7 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({height, width, amount, Item}
                  position: 'relative'
              }}
         >
-            {inFocus}
+            {displayed}
             <div style={{height: items.length * itemHeight}}/>
         </div>
     )
