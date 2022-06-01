@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useMemo, useRef, useState} from 'react'
 
 interface IInfiniteScroll {
     style: React.CSSProperties
@@ -6,50 +6,57 @@ interface IInfiniteScroll {
 }
 
 const InfiniteScroll: React.FC<IInfiniteScroll> = ({style, children}) => {
-    const containerRef = React.useRef<HTMLInputElement>(null)
+    const containerRef = useRef<HTMLInputElement>(null)
     const [currentPosition, setCurrentPosition] = useState<number>(0)
     const [renderIndex, setRenderIndex] = useState<number>(0)
+    const renderedItems = useMemo(() => 10, [])
+    const itemsHeight: number[] = useMemo(() => [], [])
 
-    const rendered = 10
-    const itemHeight = 50
+    const items = useMemo(() => {
+        return children.map((child, i) => {
+            itemsHeight.push(child.props.height || 50)
+            const itemPosition = itemsHeight.reduce((acc, next) => acc += next) - itemsHeight[i]
+            return (
+                <div
+                    key={child.props.index}
+                    style={{
+                        width: '100%',
+                        height: itemsHeight[i],
+                        background: i % 2 === 0 ? 'lightgray' : 'white',
+                        position: 'absolute',
+                        left: 0,
+                        top: i === 0 ? 0 : itemPosition,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    {child}
+                </div>
+            )
+        })
+    }, [children])
 
-    const items = children.map((child, i) =>
-        <div
-            key={child.props.index}
-            style={{
-                width: '100%',
-                height: itemHeight,
-                background: i % 2 === 0 ? 'lightgray' : 'white',
-                position: 'absolute',
-                left: 0,
-                top: i === 0 ? 0 : i * itemHeight
-            }}>
-            {child}
-        </div>)
+    const averageItemHeight = useMemo(() => itemsHeight.reduce((acc, curr) => acc += curr) / items.length, [])
 
     const [displayedItems, setDisplayedItems] = useState(() => {
-        if (items.length > rendered) {
-            return [...items.slice(0, rendered)]
+        if (items.length > renderedItems) {
+            return [...items.slice(0, renderedItems)]
         } else return items
     })
 
-    // Attaches scroll event to the list, event handles scroll direction and position
     useEffect(() => {
         const onScroll = () => setCurrentPosition(!containerRef.current ? 0 : containerRef.current.scrollTop)
-
         containerRef.current?.addEventListener('scroll', onScroll)
-
         return () => containerRef.current?.removeEventListener('scroll', onScroll)
     }, [])
 
-    // Change last renderIndex of visible items according to amount of scrolled pixels
     useEffect(() => {
-        setRenderIndex(Math.floor(currentPosition / itemHeight))
+        if (renderIndex === Math.floor(currentPosition / averageItemHeight)) return
+        setRenderIndex(Math.floor(currentPosition / averageItemHeight))
     }, [currentPosition])
 
-    // Add element at the end / beginning of list according to renderIndex
     useEffect(() => {
-        setDisplayedItems(items.slice(renderIndex, rendered + renderIndex))
+        setDisplayedItems(items.slice(renderIndex, renderedItems + renderIndex))
     }, [renderIndex])
 
     return (
@@ -58,11 +65,11 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({style, children}) => {
                  ...style,
                  border: '1px solid gray',
                  overflowY: 'scroll',
-                 position: 'relative'
+                 position: 'relative',
              }}
         >
             {displayedItems}
-            <div style={{height: items.length * itemHeight}}/>
+            <div style={{height: items.length * averageItemHeight}}/>
         </div>
     )
 }
