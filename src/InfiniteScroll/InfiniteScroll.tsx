@@ -5,20 +5,24 @@ interface IInfiniteScroll {
     children: Array<any>
 }
 
+const renderedItems = 10
+
 const InfiniteScroll: React.FC<IInfiniteScroll> = ({style, children}) => {
     const containerRef = useRef<HTMLInputElement>(null)
-    const [currentPosition, setCurrentPosition] = useState<number>(0)
     const [renderIndex, setRenderIndex] = useState<number>(0)
-    const renderedItems = useMemo(() => 10, [])
-    const itemsHeight: number[] = useMemo(() => [], [])
+    const ref = useRef<number[]>()
+    if (!ref.current) {
+        ref.current = []
+    }
+    const itemsHeight = ref.current
 
     const items = useMemo(() => {
-        return children.map((child, i) => {
+        return React.Children.map(children, (child, i) => {
             itemsHeight.push(child.props.height || 50)
             const itemPosition = itemsHeight.reduce((acc, next) => acc += next) - itemsHeight[i]
             return (
                 <div
-                    key={child.props.index}
+                    key={child.props.elementId}
                     style={{
                         width: '100%',
                         height: itemsHeight[i],
@@ -45,15 +49,13 @@ const InfiniteScroll: React.FC<IInfiniteScroll> = ({style, children}) => {
     })
 
     useEffect(() => {
-        const onScroll = () => setCurrentPosition(!containerRef.current ? 0 : containerRef.current.scrollTop)
+        const onScroll = () => {
+            const currentPosition = !containerRef.current ? 0 : containerRef.current.scrollTop
+            setRenderIndex(Math.floor(currentPosition / averageItemHeight))
+        }
         containerRef.current?.addEventListener('scroll', onScroll)
         return () => containerRef.current?.removeEventListener('scroll', onScroll)
     }, [])
-
-    useEffect(() => {
-        if (renderIndex === Math.floor(currentPosition / averageItemHeight)) return
-        setRenderIndex(Math.floor(currentPosition / averageItemHeight))
-    }, [currentPosition])
 
     useEffect(() => {
         setDisplayedItems(items.slice(renderIndex, renderedItems + renderIndex))
